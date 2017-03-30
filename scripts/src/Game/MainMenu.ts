@@ -13,7 +13,14 @@ class MainMenu extends Phaser.State {
         background: Phaser.Sprite;
         music: Phaser.Sound;
         logo: Phaser.Sprite;
-
+		topScore: number;
+		topScoreLabel: Phaser.Text;
+		
+		init(counterHighest: number) {
+			this.topScore = counterHighest;
+			if (!counterHighest) this.topScore = 0;
+		}
+		
         create() {
 			/**
 			*Установка фона
@@ -35,11 +42,22 @@ class MainMenu extends Phaser.State {
 			*/
             this.add.tween(this.background).to({ alpha: 1 }, 2000, Phaser.Easing.Bounce.InOut, true);
             this.add.tween(this.logo).to({ y: 220 }, 2000, Phaser.Easing.Elastic.Out, true, 2000);
-
+			
+			if(this.topScore != 0) {
+				this.topScoreLabel = this.game.add.text(225, -100, "Score: " + this.topScore.toString(),
+                { font: "50px Courier", family: "Courier New", fill: "#ffffff" });
+				this.topScoreLabel.alpha = 0;
+				this.add.tween(this.topScoreLabel).to({alpha: 1}, 2000, Phaser.Easing.Linear.None, true);
+				this.add.tween(this.topScoreLabel).to({ y: 400 }, 2000, Phaser.Easing.Elastic.Out, true, 2000);
+			}
+			
 			/**
 			*Покидание меню
 			*/
             this.input.onDown.addOnce(this.fadeOut, this);
+			var spBar = this.input.keyboard.addKey(
+                Phaser.Keyboard.SPACEBAR);
+            spBar.onDown.add(this.fadeOut, this);
 			
 			/**
 			*Отбой игровой музыки (а случай если пользователь вернулся обратно в меню)
@@ -60,8 +78,12 @@ class MainMenu extends Phaser.State {
         fadeOut() {
 
             this.add.tween(this.background).to({ alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+			if(this.topScore != 0){
+				this.add.tween(this.topScoreLabel).to({ alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+				this.add.tween(this.topScoreLabel).to({ y: 1000 }, 2000, Phaser.Easing.Linear.None, true);
+			}
             var tween = this.add.tween(this.logo).to({ y: 800 }, 2000, Phaser.Easing.Linear.None, true);
-
+			
             tween.onComplete.add(this.startGame, this);
 
         }

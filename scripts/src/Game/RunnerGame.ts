@@ -24,6 +24,7 @@ class RunnerGame extends Phaser.State {
         tiles: Terrain;
         counterLabel: Phaser.Text;
         counter: number;
+		counterHighest: number;
 		
 		/**
 		*Инициализация
@@ -42,7 +43,9 @@ class RunnerGame extends Phaser.State {
 
             this.tiles = new Terrain(this.game);
             this.death = this.game.add.audio('error');
-
+			
+			if(typeof this.counterHighest === 'undefined') this.counterHighest = 0;
+			
             this.counter = 0;
             this.counterLabel = this.game.add.text(50, 20, "0",
                 { font: "40px Courier", family: "Arial", fill: "#ffffff" });   
@@ -71,12 +74,14 @@ class RunnerGame extends Phaser.State {
             if (this.player.y > this.game.height
                 || this.game.input.keyboard.isDown(Phaser.Keyboard.R)
                 || this.player.body.x < 140) {
-                this.death.play();
+				if(this.counter > this.counterHighest) this.counterHighest = this.counter;
+				this.death.play();
                 this.game.state.restart(true, false);
             }
 
             if (this.game.input.keyboard.isDown(Phaser.Keyboard.ESC)) {
-                this.game.state.start('MainMenu', true, false);
+				if(this.counter > this.counterHighest) this.counterHighest = this.counter;
+                this.game.state.start('MainMenu', true, false, this.counterHighest);
             }
 
             this.counter += 10;
